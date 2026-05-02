@@ -115,6 +115,16 @@ Queued or running tasks during an upgrade are risky because an upgrade may resta
 
 Future versions may add age-based hard failures for stale queued/running tasks once OpenClaw exposes enough structured detail across versions.
 
+## Resource Pressure
+
+The guard samples resource usage during each run and warns when:
+
+- Available memory drops below 10%.
+- 1-minute load average per CPU rises above 2.
+- The largest OpenClaw/Node process RSS exceeds 1.5 GiB.
+
+This is especially important for container rehearsal because a target version can pass functional probes while still using materially more CPU or memory than the current install. Treat these warnings as upgrade risk and compare them with the local baseline and post-upgrade reports.
+
 ## Safe Open Source Defaults
 
 The guard must:

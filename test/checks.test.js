@@ -246,6 +246,38 @@ test("container channel probe failures are warnings", () => {
   assert.equal(checks.find((check) => check.id === "channel.telegram.default.probe")?.level, "warning");
 });
 
+test("resource evaluator warns on pressure", () => {
+  const checks = evaluate({
+    mode: "container-rehearsal",
+    resources: {
+      sampleCount: 2,
+      startedAt: "2026-05-02T00:00:00Z",
+      finishedAt: "2026-05-02T00:00:02Z",
+      peak: {
+        load1: 20,
+        load1PerCpu: 2.5,
+        minMemoryAvailablePercent: 5,
+        processRssBytes: 2 * 1024 * 1024 * 1024,
+        process: { pid: 123, comm: "node" },
+      },
+    },
+    commands: {
+      version: ok("2026.4.23"),
+      status: okJson({
+        runtimeVersion: "2026.4.23",
+        gateway: { reachable: false, misconfigured: false },
+        gatewayService: { installed: false, runtime: { status: "unknown" } },
+        agents: { agents: [{ id: "main", workspaceDir: "/missing", sessionsPath: process.argv[1] }] },
+      }),
+      health: okJson({ ok: true, channels: {} }),
+    },
+  });
+
+  assert.equal(checks.find((check) => check.id === "resources.memory")?.level, "warning");
+  assert.equal(checks.find((check) => check.id === "resources.cpu")?.level, "warning");
+  assert.equal(checks.find((check) => check.id === "resources.process_rss")?.level, "warning");
+});
+
 test("recommendation blocks upgrades on hard errors", () => {
   const recommendation = buildRecommendation({
     mode: "container-rehearsal",

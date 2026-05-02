@@ -28,6 +28,7 @@ macOS, Windows, WSL, and non-systemd Linux may work for parts of the CLI, but th
 - Config validation when available.
 - Update metadata, including installed version versus registry latest.
 - Baseline drift after upgrade, such as missing agents or channels that were configured before.
+- Resource pressure during validation, including load average, available memory, and OpenClaw/Node process RSS.
 
 The tool treats immediate runtime failures as errors. Historical task failures, old lost tasks, bootstrap-pending agents, and dependency marker oddities are warnings because those can exist before an upgrade and should not automatically block every user.
 
