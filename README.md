@@ -48,7 +48,7 @@ less reports/container-rehearsal/run/summary.md
 To rehearse a specific OpenClaw target:
 
 ```sh
-OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run suite:pre
+npm run suite:pre -- --target 2026.4.29
 ```
 
 If the container rehearsal fails, do not upgrade. If it passes, start with the guarded update dry run printed by the rehearsal output.

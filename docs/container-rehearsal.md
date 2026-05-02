@@ -104,6 +104,14 @@ GUARD_GATEWAY_READY_TIMEOUT_SECONDS=420 npm run container:rehearse -- fixtures/o
 
 ## Rehearse Against a Specific Version or Tag
 
+For the full pre-upgrade suite:
+
+```sh
+npm run suite:pre -- --target 2026.4.29
+```
+
+For a container-only rehearsal:
+
 ```sh
 OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run container:rehearse -- fixtures/openclaw-sanitized
 ```

@@ -2,20 +2,29 @@
 set -euo pipefail
 
 mode="${1:-}"
+if [ "$#" -gt 0 ]; then
+  shift
+fi
 fixture="${OPENCLAW_FIXTURE_DIR:-fixtures/openclaw-sanitized}"
 before_dir="${OPENCLAW_BEFORE_DIR:-reports/before-upgrade}"
 after_dir="${OPENCLAW_AFTER_DIR:-reports/after-upgrade}"
 baseline_file="${OPENCLAW_BASELINE_FILE:-$before_dir/report.json}"
+target_package="${OPENCLAW_PACKAGE:-openclaw@latest}"
 
 usage() {
   cat <<'USAGE'
 Usage:
-  scripts/run-upgrade-suite.sh pre
+  scripts/run-upgrade-suite.sh pre [--target <version|tag|package>]
   scripts/run-upgrade-suite.sh post
 
 Modes:
   pre   Export a sanitized fixture, then run local baseline and container rehearsal in parallel.
   post  Run local post-upgrade comparison using reports/before-upgrade/report.json.
+
+Options:
+  --target <value>       OpenClaw version, dist-tag, or package for pre mode.
+                         Examples: 2026.4.26, beta, openclaw@2026.4.26.
+  --package <value>      Exact npm package spec for pre mode.
 
 Environment:
   OPENCLAW_PACKAGE       Package/version for container rehearsal (default: openclaw@latest).
@@ -25,6 +34,47 @@ Environment:
   OPENCLAW_BASELINE_FILE Baseline JSON for post mode (default: reports/before-upgrade/report.json).
 USAGE
 }
+
+normalize_target_package() {
+  case "$1" in
+    *@*) printf '%s\n' "$1" ;;
+    *) printf 'openclaw@%s\n' "$1" ;;
+  esac
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --target)
+      if [ "$#" -lt 2 ]; then
+        echo "Missing value for --target" >&2
+        exit 2
+      fi
+      target_package="$(normalize_target_package "$2")"
+      shift 2
+      ;;
+    --package)
+      if [ "$#" -lt 2 ]; then
+        echo "Missing value for --package" >&2
+        exit 2
+      fi
+      target_package="$2"
+      shift 2
+      ;;
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+    *)
+      target_package="$(normalize_target_package "$1")"
+      shift
+      ;;
+  esac
+done
 
 case "$mode" in
   pre)
@@ -44,9 +94,9 @@ case "$mode" in
     baseline_pid="$!"
 
     echo "[suite] Starting container rehearsal"
-    echo "[suite] Container target: ${OPENCLAW_PACKAGE:-openclaw@latest}"
+    echo "[suite] Container target: $target_package"
     echo "[suite] Container output: $container_log"
-    OPENCLAW_PACKAGE="${OPENCLAW_PACKAGE:-openclaw@latest}" \
+    OPENCLAW_PACKAGE="$target_package" \
       npm run container:rehearse -- "$fixture" \
       > "$container_log" 2>&1 &
     container_pid="$!"

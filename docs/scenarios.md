@@ -105,6 +105,12 @@ Command:
 npm run suite:pre
 ```
 
+To target a specific OpenClaw version:
+
+```sh
+npm run suite:pre -- --target 2026.4.26
+```
+
 Expected outcome:
 
 - A sanitized fixture is exported.
