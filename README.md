@@ -91,7 +91,7 @@ npm run suite:post
 
 If the post-upgrade run reports errors, fix those before trusting the upgraded install. If it reports warnings, decide whether they match known historical state or represent new risk.
 
-Running `node bin/openclaw-upgrade-guard.js` directly only runs the local guard. It does not start Docker or Podman. Use `npm run suite:pre` when you want the local baseline and latest-version container rehearsal together. Container rehearsal uses `container-rehearsal` mode, which checks the sanitized config/state with latest OpenClaw while treating host-only features such as systemd services, live gateway reachability, and absolute host workspace paths as warnings.
+Running `node bin/openclaw-upgrade-guard.js` directly only runs the local guard. It does not start Docker or Podman. Use `npm run suite:pre` when you want the local baseline and latest-version container rehearsal together. Container rehearsal uses `container-rehearsal` mode, which checks the sanitized config/state with latest OpenClaw, starts a foreground gateway inside the container, and treats failed gateway RPC/probe results as hard errors. Host-only features such as systemd service installation and absolute host workspace paths remain warnings.
 
 ## Container Rehearsal
 

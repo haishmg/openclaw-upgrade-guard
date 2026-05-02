@@ -58,6 +58,14 @@ Reports are written to:
 reports/container-rehearsal/run/
 ```
 
+The rehearsal starts `openclaw gateway run` in the container before running checks. Gateway RPC and probe failures are hard errors because they indicate the target OpenClaw package cannot run the replicated setup well enough to answer local health checks. Host service installation checks still warn instead of failing because the container does not run your user-level `systemd`.
+
+The gateway startup log is written to:
+
+```text
+reports/container-rehearsal/gateway.log
+```
+
 ## Rehearse Against a Specific Version or Tag
 
 ```sh
@@ -76,13 +84,14 @@ Can prove:
 
 - The target OpenClaw package installs in a clean Node image.
 - Your sanitized config shape still parses.
+- The target gateway can start in the isolated fixture and answer local RPC/probe checks.
 - Static agent/workspace/session metadata survives the new version.
 - The guard itself works in a clean Linux environment.
 
 Cannot fully prove:
 
 - Real Telegram/WhatsApp auth still works, because auth stores are intentionally not copied by default.
-- Host systemd service behavior, because the container does not run your user systemd.
+- Host systemd service installation behavior, because the container does not run your user systemd.
 - Hardware, Tailscale, DNS, or local network behavior.
 
 For real confidence, use both workflows:
