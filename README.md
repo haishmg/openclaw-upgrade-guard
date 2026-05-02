@@ -36,14 +36,34 @@ The tool treats immediate runtime failures as errors. Historical task failures, 
 From a checkout:
 
 ```sh
+cd /path/to/openclaw-upgrade-guard
 npm install
 npm link
 ```
 
-Or run directly:
+After `npm link`, run it from anywhere:
 
 ```sh
+openclaw-upgrade-guard --help
+```
+
+Or run directly from inside the checkout:
+
+```sh
+cd /path/to/openclaw-upgrade-guard
 node bin/openclaw-upgrade-guard.js --help
+```
+
+If you are outside the checkout, use the full path:
+
+```sh
+node /path/to/openclaw-upgrade-guard/bin/openclaw-upgrade-guard.js --help
+```
+
+For example, on this host:
+
+```sh
+node /home/pii/openclaw-upgrade-guard/bin/openclaw-upgrade-guard.js --help
 ```
 
 ## Recommended Upgrade Workflow
