@@ -45,11 +45,18 @@ if [ "${GUARD_START_GATEWAY:-1}" = "1" ]; then
 fi
 
 set +e
-node /guard/bin/openclaw-upgrade-guard.js \
+guard_args=(
+  /guard/bin/openclaw-upgrade-guard.js
   --mode "${GUARD_MODE:-container-rehearsal}" \
   --openclaw "${OPENCLAW_BIN:-openclaw}" \
   --timeout "${GUARD_TIMEOUT:-45}" \
   --out /reports/run
+)
+if [ -n "${GUARD_BASELINE:-}" ]; then
+  guard_args+=(--baseline "$GUARD_BASELINE")
+fi
+
+node "${guard_args[@]}"
 status="$?"
 set -e
 

@@ -67,6 +67,28 @@ Expected outcome:
 
 This scenario complements local checks. It does not replace local post-upgrade validation because live channel credentials and host system services are intentionally not copied into the fixture.
 
+## Container Baseline Comparison
+
+Goal: prove a target package preserves behavior that the current package already has in the same sanitized fixture and container harness.
+
+Command:
+
+```sh
+npm run container:export -- ~/.openclaw fixtures/openclaw-sanitized
+OPENCLAW_BASELINE_PACKAGE=openclaw@2026.4.23 OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run container:compare -- fixtures/openclaw-sanitized
+```
+
+Expected outcome:
+
+- The current/baseline package passes against the sanitized fixture.
+- The target package is compared against the saved baseline report.
+- New gateway capability loss is an error.
+- New command failures or newly unparseable command output are errors.
+- Channel accounts that were configured, linked, or probeable in the baseline keep that state.
+- Resource regressions are reported against the baseline, not only against fixed thresholds.
+
+This is the preferred pre-upgrade container decision when investigating a specific version jump.
+
 ## Parallel Pre-Upgrade Suite
 
 Goal: make the normal pre-upgrade process easy and fast by running the independent checks together.

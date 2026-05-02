@@ -9,6 +9,7 @@
   "scripts": {
     "check": "npm test && node bin/openclaw-upgrade-guard.js --help",
     "container:export": "node scripts/export-fixture.js",
+    "container:compare": "bash scripts/run-container-comparison.sh",
     "container:rehearse": "bash scripts/run-container-rehearsal.sh",
     "report:html": "node scripts/render-report-html.js",
     "suite:pre": "bash scripts/run-upgrade-suite.sh pre",

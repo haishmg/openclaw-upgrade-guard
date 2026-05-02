@@ -144,6 +144,28 @@ For real confidence, use both workflows:
 2. Local baseline before upgrade.
 3. Local post-upgrade comparison after upgrade.
 
+## Compare a Target Against the Current Version
+
+A plain container rehearsal proves that the target version can start with the fixture. The stronger check is a control-vs-target comparison:
+
+```sh
+npm run container:export -- ~/.openclaw fixtures/openclaw-sanitized
+OPENCLAW_BASELINE_PACKAGE=openclaw@2026.4.23 OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run container:compare -- fixtures/openclaw-sanitized
+```
+
+This runs the baseline package first, saves `reports/container-baselines/2026.4.23/report.json`, then runs the target package with that report mounted as `--baseline`.
+
+Use this when you need to answer: "does the target version preserve the behavior my current setup already has?" It avoids failing the target for container noise that also exists in the current version, while still failing new regressions such as lost gateway identity, new gateway errors, newly broken channel account state, or materially higher resource usage.
+
+You can also run the two steps manually:
+
+```sh
+OPENCLAW_PACKAGE=openclaw@2026.4.23 npm run container:rehearse -- fixtures/openclaw-sanitized
+mkdir -p reports/container-baselines/2026.4.23
+cp reports/container-rehearsal/run/report.json reports/container-baselines/2026.4.23/report.json
+OPENCLAW_BASELINE_FILE=reports/container-baselines/2026.4.23/report.json OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run container:rehearse -- fixtures/openclaw-sanitized
+```
+
 ## Run With the Local Baseline in Parallel
 
 The container rehearsal and local baseline do not depend on each other, so the project includes a convenience suite:

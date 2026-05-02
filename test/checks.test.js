@@ -69,6 +69,50 @@ test("baseline evaluator catches missing agents and channels", () => {
   assert(checks.some((check) => check.level === "error" && check.id === "baseline.channel.telegram"));
 });
 
+test("baseline evaluator catches gateway capability regression", () => {
+  const baseline = {
+    commands: {
+      status: {
+        ok: true,
+        json: {
+          gateway: {
+            reachable: true,
+            self: { version: "2026.4.23" },
+            error: null,
+          },
+          agents: { agents: [{ id: "main" }] },
+        },
+      },
+      health: { ok: true, json: { channels: {} } },
+      gateway_probe: { ok: true, json: { ok: true } },
+    },
+  };
+
+  const checks = evaluate({
+    mode: "container-rehearsal",
+    baseline,
+    commands: {
+      version: ok("2026.4.29"),
+      status: okJson({
+        runtimeVersion: "2026.4.29",
+        gateway: {
+          reachable: true,
+          self: null,
+          error: "missing scope: operator.read",
+          misconfigured: false,
+        },
+        gatewayService: { installed: false, runtime: { status: "unknown" } },
+        agents: { agents: [{ id: "main", workspaceDir: "/missing", sessionsPath: process.argv[1] }] },
+      }),
+      health: okJson({ ok: true, channels: {} }),
+      gateway_probe: okJson({ ok: true }),
+    },
+  });
+
+  assert.equal(checks.find((check) => check.id === "baseline.gateway.self")?.level, "error");
+  assert.equal(checks.find((check) => check.id === "baseline.gateway.error")?.level, "error");
+});
+
 test("container rehearsal downgrades host runtime expectations", () => {
   const checks = evaluate({
     mode: "container-rehearsal",

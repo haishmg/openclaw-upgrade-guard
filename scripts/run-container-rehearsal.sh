@@ -41,11 +41,23 @@ if [ "$runtime" = "podman" ]; then
   run_args+=(--userns=keep-id)
 fi
 
+baseline_args=()
+if [ -n "${OPENCLAW_BASELINE_FILE:-}" ]; then
+  if [ ! -f "$OPENCLAW_BASELINE_FILE" ]; then
+    echo "[container] Baseline file not found: $OPENCLAW_BASELINE_FILE" >&2
+    exit 1
+  fi
+  baseline_abs="$(cd "$(dirname "$OPENCLAW_BASELINE_FILE")" && pwd)/$(basename "$OPENCLAW_BASELINE_FILE")"
+  echo "[container] Baseline: $baseline_abs"
+  baseline_args=(-e GUARD_BASELINE=/baseline/report.json -v "$baseline_abs:/baseline/report.json:ro")
+fi
+
 set +e
 "$runtime" "${run_args[@]}" \
   -e GUARD_MODE="${GUARD_MODE:-container-rehearsal}" \
   -e GUARD_GATEWAY_READY_TIMEOUT_SECONDS="${GUARD_GATEWAY_READY_TIMEOUT_SECONDS:-300}" \
   -e GUARD_GATEWAY_READY_INTERVAL_SECONDS="${GUARD_GATEWAY_READY_INTERVAL_SECONDS:-2}" \
+  "${baseline_args[@]}" \
   -v "$PWD/$fixture:/fixture:ro" \
   -v "$PWD/reports/container-rehearsal:/reports" \
   "$image"

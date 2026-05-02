@@ -103,6 +103,15 @@ npm run container:export -- ~/.openclaw fixtures/openclaw-sanitized
 OPENCLAW_PACKAGE=openclaw@latest npm run container:rehearse -- fixtures/openclaw-sanitized
 ```
 
+For the most useful version decision, compare the target against a same-environment container baseline from your currently working version:
+
+```sh
+npm run container:export -- ~/.openclaw fixtures/openclaw-sanitized
+OPENCLAW_BASELINE_PACKAGE=openclaw@2026.4.23 OPENCLAW_PACKAGE=openclaw@2026.4.29 npm run container:compare -- fixtures/openclaw-sanitized
+```
+
+This first runs the baseline package against the exported fixture and saves it under `reports/container-baselines/`. It then runs the target package with `--baseline` against that control report, so warnings already present in the current version do not become false blockers, but new capability regressions do.
+
 See [docs/container-rehearsal.md](docs/container-rehearsal.md) for details and limitations.
 
 Container images can consume multiple GB on small hosts after repeated rebuilds. See the Podman/Docker disk usage notes in [docs/container-rehearsal.md](docs/container-rehearsal.md#podman-and-docker-disk-usage).
