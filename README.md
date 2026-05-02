@@ -235,6 +235,8 @@ Run tests and a CLI smoke check:
 ```sh
 npm test
 npm run check
+npm run regression:offline
+npm run ci
 ```
 
 Run against a non-default OpenClaw executable:
@@ -242,3 +244,5 @@ Run against a non-default OpenClaw executable:
 ```sh
 node bin/clawback.js --openclaw /path/to/openclaw --mode baseline
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for pull request expectations and [docs/regression.md](docs/regression.md) for the regression strategy.

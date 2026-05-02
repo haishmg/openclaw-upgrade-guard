@@ -1,0 +1,27 @@
+name: Offline Regression
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Install package metadata
+        run: npm install --ignore-scripts
+
+      - name: Run offline regression suite
+        run: npm run regression:offline

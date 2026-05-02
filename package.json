@@ -8,10 +8,12 @@
     "openclaw-upgrade-guard": "./bin/openclaw-upgrade-guard.js"
   },
   "scripts": {
+    "ci": "npm run check && npm run regression:offline",
     "check": "npm test && node bin/clawback.js --help",
     "container:export": "node scripts/export-fixture.js",
     "container:compare": "bash scripts/run-container-comparison.sh",
     "container:rehearse": "bash scripts/run-container-rehearsal.sh",
+    "regression:offline": "node scripts/regression-offline.js",
     "report:html": "node scripts/render-report-html.js",
     "suite:pre": "bash scripts/run-upgrade-suite.sh pre",
     "suite:post": "bash scripts/run-upgrade-suite.sh post",

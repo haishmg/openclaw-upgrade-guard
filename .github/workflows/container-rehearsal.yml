@@ -1,0 +1,57 @@
+name: Container Rehearsal
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_package:
+        description: Baseline OpenClaw package spec
+        required: true
+        default: openclaw@2026.4.24
+      target_package:
+        description: Target OpenClaw package spec
+        required: true
+        default: openclaw@latest
+      fixture_path:
+        description: Fixture path committed to the repo or restored before the run
+        required: true
+        default: test/fixtures/openclaw-minimal
+
+permissions:
+  contents: read
+
+jobs:
+  container-compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Install package metadata
+        run: npm install --ignore-scripts
+
+      - name: Check fixture exists
+        run: test -d "${{ inputs.fixture_path }}"
+
+      - name: Run container comparison
+        env:
+          CONTAINER_RUNTIME: docker
+          OPENCLAW_BASELINE_PACKAGE: ${{ inputs.baseline_package }}
+          OPENCLAW_PACKAGE: ${{ inputs.target_package }}
+          GUARD_GATEWAY_READY_TIMEOUT_SECONDS: "300"
+        run: npm run container:compare -- "${{ inputs.fixture_path }}"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clawback-container-reports
+          path: |
+            reports/container-rehearsal/
+            reports/container-baselines/
+          if-no-files-found: ignore

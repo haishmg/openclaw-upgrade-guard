@@ -1,5 +1,5 @@
 node_modules/
-reports/
-fixtures/
+/reports/
+/fixtures/
 *.log
 .DS_Store

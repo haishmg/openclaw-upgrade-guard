@@ -1,0 +1,37 @@
+name: Upgrade regression case
+description: Share an OpenClaw upgrade failure Clawback should catch.
+title: "[regression] "
+labels:
+  - regression
+body:
+  - type: input
+    id: from-version
+    attributes:
+      label: Working OpenClaw version
+      placeholder: 2026.4.24
+    validations:
+      required: true
+  - type: input
+    id: target-version
+    attributes:
+      label: Target OpenClaw version
+      placeholder: 2026.4.25
+    validations:
+      required: true
+  - type: textarea
+    id: breakage
+    attributes:
+      label: What broke after upgrade?
+      description: Gateway, channel auth, tasks, cron, resource usage, command output, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: guard-result
+    attributes:
+      label: What did Clawback report?
+      description: Paste redacted errors/warnings or attach sanitized reports if safe.
+      render: text
+  - type: textarea
+    id: desired-check
+    attributes:
+      label: What check would have caught this earlier?

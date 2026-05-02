@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a Clawback bug or false result.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+  - type: input
+    id: clawback-version
+    attributes:
+      label: Clawback version or commit
+      placeholder: v0.1.0 or commit SHA
+  - type: input
+    id: openclaw-version
+    attributes:
+      label: OpenClaw version
+      placeholder: 2026.4.24
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode
+      options:
+        - baseline
+        - container-rehearsal
+        - post-upgrade
+        - guarded update
+        - rollback
+        - docs
+  - type: textarea
+    id: validation
+    attributes:
+      label: Relevant output
+      description: Paste redacted CLI output, summary.md snippets, or report findings. Do not paste secrets.
+      render: text
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
