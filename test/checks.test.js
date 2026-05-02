@@ -347,6 +347,7 @@ test("argument parser validates timeout", () => {
   assert.equal(parseArgs(["--mode", "container-rehearsal"]).mode, "container-rehearsal");
   assert.equal(parseArgs(["--mode", "post-upgrade", "--settle", "180"]).settleSeconds, 180);
   assert.equal(parseArgs(["--no-html"]).html, false);
+  assert.equal(parseArgs(["--debug"]).debug, true);
   assert.equal(parseArgs(["--quiet"]).quiet, true);
 });
 
