@@ -58,12 +58,25 @@ Reports are written to:
 reports/container-rehearsal/run/
 ```
 
-The rehearsal starts `openclaw gateway run` in the container before running checks. Gateway RPC and probe failures are hard errors because they indicate the target OpenClaw package cannot run the replicated setup well enough to answer local health checks. Host service installation checks still warn instead of failing because the container does not run your user-level `systemd`.
+The rehearsal starts `openclaw gateway run` in the container before running checks. It waits for either the gateway startup log to report ready or for `openclaw gateway probe --json` to report `ok: true`, so slow plugin/runtime startup is not treated the same as a gateway that never becomes usable. Gateway RPC and probe failures are hard errors because they indicate the target OpenClaw package cannot run the replicated setup well enough to answer local health checks. Host service installation checks still warn instead of failing because the container does not run your user-level `systemd`.
 
 The gateway startup log is written to:
 
 ```text
 reports/container-rehearsal/gateway.log
+```
+
+The last readiness probe output is also saved for troubleshooting:
+
+```text
+reports/container-rehearsal/gateway-probe-last.json
+reports/container-rehearsal/gateway-probe-last.err
+```
+
+The default readiness timeout is 90 seconds. For slower hosts, increase it:
+
+```sh
+GUARD_GATEWAY_READY_TIMEOUT_SECONDS=180 npm run container:rehearse -- fixtures/openclaw-sanitized
 ```
 
 ## Rehearse Against a Specific Version or Tag
