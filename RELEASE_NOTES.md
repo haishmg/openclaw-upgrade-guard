@@ -1,12 +1,10 @@
-# Clawback 0.2.0
+# Clawback 0.2.1
 
 ## Highlights
 
-- Default validation output is quieter and focused on important checkpoints.
-- Use `--debug` to restore exhaustive per-probe progress output.
-- `npm run suite:pre` runs the local baseline and container rehearsal in parallel, but prints both captured results only after both checks finish.
-- README now explains why baseline and container checks intentionally overlap.
-- Container builds now print the actual OpenClaw package being installed instead of showing a misleading `openclaw@latest` Dockerfile default.
+- Adds `npm run suite:pre -- --target <version>` for selecting the OpenClaw target package without setting `OPENCLAW_PACKAGE`.
+- Supports version, dist-tag, and full package specs, for example `2026.4.26`, `beta`, or `openclaw@2026.4.26`.
+- Keeps `OPENCLAW_PACKAGE` support for automation and backward compatibility.
 
 ## Validation
 
