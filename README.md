@@ -246,3 +246,9 @@ node bin/clawback.js --openclaw /path/to/openclaw --mode baseline
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for pull request expectations and [docs/regression.md](docs/regression.md) for the regression strategy.
+
+## Releases
+
+Releases are created from annotated `v*` tags. The release workflow runs CI, packs the npm tarball, creates a GitHub Release, and attaches the package artifact.
+
+See [CHANGELOG.md](CHANGELOG.md) and [docs/releases.md](docs/releases.md).
