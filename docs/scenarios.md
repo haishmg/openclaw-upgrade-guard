@@ -1,0 +1,95 @@
+# Validation Scenarios
+
+This document describes the scenarios OpenClaw Upgrade Guard is meant to cover before the project is opened up for wider use.
+
+## Baseline Before Upgrade
+
+Goal: prove the existing install is healthy enough to compare against.
+
+Command:
+
+```sh
+openclaw-upgrade-guard --mode baseline --out reports/before-upgrade
+```
+
+Expected outcome:
+
+- OpenClaw CLI responds.
+- Gateway is reachable.
+- Managed gateway service is running.
+- Configured channels still have valid auth/probe state.
+- Agents and workspaces are still present.
+- No queued or running task backlog is silently ignored.
+- Known historical task failures are visible as warnings.
+
+## Post-Upgrade Comparison
+
+Goal: detect regressions introduced by the newly installed OpenClaw version.
+
+Command:
+
+```sh
+openclaw-upgrade-guard --mode post-upgrade --baseline reports/before-upgrade/report.json
+```
+
+Expected outcome:
+
+- Agents present before the upgrade are still present.
+- Channels configured before the upgrade are still configured.
+- Gateway remains reachable after the service restart.
+- Runtime version changed when an actual upgrade was expected.
+
+## Container Rehearsal
+
+Goal: test a sanitized copy of the setup against a fresh OpenClaw package without mutating the host.
+
+Command:
+
+```sh
+npm run container:export -- ~/.openclaw fixtures/openclaw-sanitized
+OPENCLAW_PACKAGE=openclaw@latest npm run container:rehearse -- fixtures/openclaw-sanitized
+```
+
+Expected outcome:
+
+- The container image builds.
+- The target OpenClaw package installs.
+- The sanitized fixture can be loaded.
+- Static config and agent checks pass or produce actionable warnings.
+
+This scenario complements local checks. It does not replace local post-upgrade validation because live channel credentials and host system services are intentionally not copied into the fixture.
+
+## Gateway Service Breakage
+
+The guard should fail when:
+
+- The service is not installed where the setup expects it.
+- The service is stopped or failed.
+- The RPC probe is unreachable.
+- OpenClaw status marks the gateway as misconfigured.
+
+## Channel Auth Breakage
+
+The guard should fail when a configured channel probe reports a hard failure.
+It should warn, not fail, when a channel is simply not configured on a machine that never used it.
+
+## Agent Workspace Drift
+
+The guard should fail when an agent workspace path no longer exists.
+It should warn when a sessions file is missing, because fresh agents and migrated installs may have no historical session file yet.
+
+## Task Store State
+
+Queued or running tasks during an upgrade are risky because an upgrade may restart services underneath active work. The guard warns on active tasks and historical task audit issues.
+
+Future versions may add age-based hard failures for stale queued/running tasks once OpenClaw exposes enough structured detail across versions.
+
+## Safe Open Source Defaults
+
+The guard must:
+
+- Avoid mutation by default.
+- Avoid sending messages or running agent turns by default.
+- Redact common token, key, password, session, and phone-number shapes.
+- Treat optional command differences across OpenClaw versions as warnings.
+- Keep reports useful without embedding raw local secrets.

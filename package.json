@@ -1,0 +1,25 @@
+{
+  "name": "openclaw-upgrade-guard",
+  "version": "0.1.0",
+  "description": "Preflight and post-upgrade validation for OpenClaw installations.",
+  "type": "module",
+  "bin": {
+    "openclaw-upgrade-guard": "./bin/openclaw-upgrade-guard.js"
+  },
+  "scripts": {
+    "check": "npm test && node bin/openclaw-upgrade-guard.js --help",
+    "container:export": "node scripts/export-fixture.js",
+    "container:rehearse": "bash scripts/run-container-rehearsal.sh",
+    "test": "node --test"
+  },
+  "keywords": [
+    "openclaw",
+    "upgrade",
+    "healthcheck",
+    "preflight"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}
