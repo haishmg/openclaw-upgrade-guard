@@ -8,6 +8,12 @@ Clawback uses semantic versioning:
 - `MINOR`: new checks, workflows, or report features.
 - `PATCH`: bug fixes, docs, and regression coverage.
 
+## Unreleased
+
+### Fixed
+
+- Prevent overlapping pre-upgrade suite or container rehearsal runs from corrupting shared logs, reports, and container images.
+
 ## [0.2.1] - 2026-05-02
 
 ### Added

@@ -10,6 +10,7 @@ before_dir="${OPENCLAW_BEFORE_DIR:-reports/before-upgrade}"
 after_dir="${OPENCLAW_AFTER_DIR:-reports/after-upgrade}"
 baseline_file="${OPENCLAW_BASELINE_FILE:-$before_dir/report.json}"
 target_package="${OPENCLAW_PACKAGE:-openclaw@latest}"
+lock_dir="${OPENCLAW_SUITE_LOCK_DIR:-reports/.suite-pre.lock}"
 
 usage() {
   cat <<'USAGE'
@@ -40,6 +41,10 @@ normalize_target_package() {
     *@*) printf '%s\n' "$1" ;;
     *) printf 'openclaw@%s\n' "$1" ;;
   esac
+}
+
+safe_name() {
+  printf '%s' "$1" | tr -c '[:alnum:]._.-' '-'
 }
 
 while [ "$#" -gt 0 ]; do
@@ -78,12 +83,22 @@ done
 
 case "$mode" in
   pre)
+    mkdir -p reports
+    if ! mkdir "$lock_dir" 2>/dev/null; then
+      echo "[suite] Another pre-upgrade suite appears to be running: $lock_dir" >&2
+      echo "[suite] Wait for it to finish before starting another target rehearsal." >&2
+      exit 1
+    fi
+    trap 'rm -rf "$lock_dir"' EXIT INT TERM
+
     echo "[suite] Exporting sanitized OpenClaw fixture from ~/.openclaw to $fixture"
     npm run container:export -- ~/.openclaw "$fixture"
 
     mkdir -p "$before_dir" reports/container-rehearsal
+    target_name="$(safe_name "$target_package")"
     baseline_log="$before_dir/run.log"
     container_log="reports/container-rehearsal/run.log"
+    container_image="clawback:${target_name}"
 
     echo "[suite] Starting local baseline"
     echo "[suite] Local baseline reports: $before_dir"
@@ -95,8 +110,10 @@ case "$mode" in
 
     echo "[suite] Starting container rehearsal"
     echo "[suite] Container target: $target_package"
+    echo "[suite] Container image: $container_image"
     echo "[suite] Container output: $container_log"
     OPENCLAW_PACKAGE="$target_package" \
+    OPENCLAW_GUARD_IMAGE="$container_image" \
       npm run container:rehearse -- "$fixture" \
       > "$container_log" 2>&1 &
     container_pid="$!"

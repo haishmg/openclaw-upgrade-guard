@@ -16,12 +16,21 @@ fi
 fixture="${1:-fixtures/openclaw-sanitized}"
 package="${OPENCLAW_PACKAGE:-openclaw@latest}"
 image="${OPENCLAW_GUARD_IMAGE:-clawback:local}"
+lock_dir="${OPENCLAW_CONTAINER_LOCK_DIR:-reports/.container-rehearsal.lock}"
 
 if [ ! -d "$fixture" ]; then
   echo "[container] Fixture directory not found: $fixture" >&2
   echo "[container] Create one with: node scripts/export-fixture.js ~/.openclaw $fixture" >&2
   exit 1
 fi
+
+mkdir -p reports
+if ! mkdir "$lock_dir" 2>/dev/null; then
+  echo "[container] Another container rehearsal appears to be running: $lock_dir" >&2
+  echo "[container] Wait for it to finish before starting another target rehearsal." >&2
+  exit 1
+fi
+trap 'rm -rf "$lock_dir"' EXIT INT TERM
 
 echo "[container] Runtime: $runtime"
 echo "[container] Fixture: $fixture"
@@ -34,7 +43,7 @@ echo "[container] Building image: $image"
 
 mkdir -p reports/container-rehearsal
 
-echo "[container] Running latest-version rehearsal in isolated container"
+echo "[container] Running target rehearsal in isolated container"
 echo "[container] Reports: reports/container-rehearsal/run"
 run_args=(run --rm)
 if [ "$runtime" = "podman" ]; then
