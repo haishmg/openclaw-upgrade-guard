@@ -78,6 +78,37 @@ You can also use a dist-tag or package spec:
 OPENCLAW_PACKAGE=openclaw@beta npm run container:rehearse -- fixtures/openclaw-sanitized
 ```
 
+## Podman and Docker Disk Usage
+
+Container rehearsal builds a Node-based image and installs OpenClaw plus its dependencies. On small Linux hosts, expect Podman/Docker storage to use multiple GB after a few rebuilds, especially when testing several OpenClaw versions.
+
+Check host disk space:
+
+```sh
+df -h /
+```
+
+Check Podman storage:
+
+```sh
+podman system df
+```
+
+Remove unused Podman images after a rehearsal:
+
+```sh
+podman image prune -a -f
+```
+
+For Docker, use:
+
+```sh
+docker system df
+docker image prune -a -f
+```
+
+Only prune images you are comfortable rebuilding. The guard reports are written under `reports/` and are not removed by image pruning.
+
 ## What This Can and Cannot Prove
 
 Can prove:

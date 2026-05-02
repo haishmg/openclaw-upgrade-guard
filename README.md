@@ -104,6 +104,8 @@ OPENCLAW_PACKAGE=openclaw@latest npm run container:rehearse -- fixtures/openclaw
 
 See [docs/container-rehearsal.md](docs/container-rehearsal.md) for details and limitations.
 
+Container images can consume multiple GB on small hosts after repeated rebuilds. See the Podman/Docker disk usage notes in [docs/container-rehearsal.md](docs/container-rehearsal.md#podman-and-docker-disk-usage).
+
 ## Parallel Suite
 
 The pre-upgrade baseline and container rehearsal are independent, so the suite runs them at the same time:
