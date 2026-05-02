@@ -5,6 +5,12 @@ It captures the current setup, checks the parts most likely to bite during an up
 
 The project is designed for personal setups first, but the checks are generic enough to share with other OpenClaw users.
 
+## Why This Exists
+
+Clawback started after a real OpenClaw upgrade path hurt more than it should have. A working install moved from `2026.4.26` toward `2026.4.29`, hit upgrade issues, then even `2026.4.26` stopped being a good recovery point. The setup eventually had to be manually rolled back to `2026.4.23`, where OpenClaw was performant and stable again.
+
+That experience exposed the core problem this project tries to solve: every OpenClaw install can be different. Agents, channels, gateway auth, task history, workspace paths, systemd state, device links, and host resources all matter. A version that looks fine in a generic smoke test can still break a specific personal setup. Clawback gives users a repeatable way to capture their own baseline, rehearse a target version in a container, compare behavior, and keep a rollback path ready before touching the live install.
+
 ## Platform Support
 
 Clawback is currently Linux/POSIX-first.
@@ -33,6 +39,32 @@ macOS, Windows, WSL, and non-systemd Linux may work for parts of the CLI, but th
 The tool treats immediate runtime failures as errors. Historical task failures, old lost tasks, bootstrap-pending agents, and dependency marker oddities are warnings because those can exist before an upgrade and should not automatically block every user.
 
 ## Install
+
+### Use The Latest Released Tag
+
+For a stable checkout, install from the latest GitHub release tag instead of cloning whatever is on `main`.
+
+Current release tag:
+
+```sh
+git clone --depth 1 --branch v0.1.0 https://github.com/haishmg/Clawback.git clawback
+cd clawback
+npm install --ignore-scripts
+node bin/clawback.js --help
+```
+
+When a newer release exists, replace `v0.1.0` with the newest tag from:
+
+```text
+https://github.com/haishmg/Clawback/releases/latest
+```
+
+If you want the command available globally from that tagged checkout:
+
+```sh
+npm link
+clawback --help
+```
 
 From a checkout:
 
@@ -220,6 +252,63 @@ npm run report:html -- reports/before-upgrade/report.json
 ```
 
 Then open the generated `report.html` in a browser.
+
+### Sample Run Output
+
+A local baseline run prints the validation phases, command probes, and the most important result immediately:
+
+```text
+[phase] Starting preflight validation
+[run] Detect OpenClaw CLI version (required)
+      openclaw --version
+[ok] version: exit 0, 149ms
+[run] Collect runtime, gateway, agent, task, and update status (required attempt 1/3)
+      openclaw status --json
+[ok] status: exit 0, 5317ms
+[run] Probe live channel and heartbeat health (optional attempt 1/3)
+      openclaw health --json
+[ok] health: exit 0, 3233ms
+[phase] Evaluating command output and upgrade invariants
+[phase] Evaluation complete: pass
+
+Clawback: PASS
+Checks: 50 total, 44 passed, 6 warnings, 0 errors
+Mode: baseline
+OpenClaw: 2026.4.24 (latest: 2026.4.29)
+Gateway: reachable at ws://127.0.0.1:18789
+Gateway service: running
+Agents: 6
+Configured channels: telegram, whatsapp
+Recommendation: Upgrade only with caution
+
+Most important warnings:
+- status.update_available: Registry latest is 2026.4.29; installed runtime is 2026.4.24
+- tasks.history: Historical failed/lost tasks are present; review before blaming an upgrade
+
+HTML report: file:///home/pii/clawback/reports/before-upgrade/report.html
+Markdown summary: /home/pii/clawback/reports/before-upgrade/summary.md
+JSON report: /home/pii/clawback/reports/before-upgrade/report.json
+```
+
+The matching `summary.md` starts with the same decision data in a shareable format:
+
+```text
+# Clawback Report
+
+- Result: PASS
+- Mode: baseline
+- Checks: 50
+- Errors: 0
+- Warnings: 6
+- Recommendation: Upgrade only with caution
+- Resources: peak load/CPU 0.88, min memory available 68.1%, peak process RSS 262 MiB
+
+## Upgrade Guidance
+
+No hard blockers were found, but warnings remain. Review them before upgrading.
+```
+
+The HTML dashboard shows the same result visually, with severity filters, search, expandable command details, timing bars, resource cards, and direct links back to the generated JSON and Markdown files.
 
 ## Current Limitations
 
