@@ -1,13 +1,13 @@
-# Clawback 0.3.1
+# Clawback 0.3.2
 
 ## Highlights
 
-- Fixes `npm run suite:pre` so the target container is compared against a same-harness container baseline for the currently installed OpenClaw version.
-- Makes regressions like lost gateway identity or new `missing scope: operator.read` errors hard failures instead of standalone container warnings.
-- Keeps the local live baseline for host context while using the container baseline for target-vs-current upgrade decisions.
+- Clarifies `npm run suite:pre` failures that happen before the target container runs.
+- Labels local host baseline failures as environment blocks, not target OpenClaw version validation failures.
+- Updates README install instructions to use the `v0.3.2` release tag.
 
 ## Validation
 
-- `npm run ci`
-- `npm pack --dry-run`
-- `npm run suite:pre -- --target 2026.4.29 --private-fixture` now fails as expected with `baseline.gateway.self` and `baseline.gateway.error`.
+- `npm test`
+- `npm run regression:offline`
+- Live baseline smoke run confirmed the corrected environment wording.
