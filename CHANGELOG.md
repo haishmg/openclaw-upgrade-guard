@@ -10,6 +10,8 @@ Clawback uses semantic versioning:
 
 ## Unreleased
 
+## [0.3.3] - 2026-05-03
+
 ### Added
 
 - Add a safe OpenClaw/Clawhub helper plugin that exposes `openclaw clawback` command guidance without running shell commands inside the plugin host.

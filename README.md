@@ -15,7 +15,7 @@ That experience exposed the core problem this project tries to solve: every Open
 Use the latest release tag for a stable checkout:
 
 ```sh
-git clone --depth 1 --branch v0.3.2 https://github.com/haishmg/Clawback.git clawback
+git clone --depth 1 --branch v0.3.3 https://github.com/haishmg/Clawback.git clawback
 cd clawback
 npm install --ignore-scripts
 node bin/clawback.js --help
@@ -28,7 +28,7 @@ npm link
 clawback --help
 ```
 
-Replace `v0.3.2` with the newest tag from `https://github.com/haishmg/Clawback/releases/latest` when a newer release exists.
+Replace `v0.3.3` with the newest tag from `https://github.com/haishmg/Clawback/releases/latest` when a newer release exists.
 
 ## Upgrade Workflow
 
