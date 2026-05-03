@@ -1,0 +1,44 @@
+{
+  "id": "clawback",
+  "name": "Clawback",
+  "description": "Command helper for Clawback OpenClaw upgrade rehearsals.",
+  "enabledByDefault": false,
+  "activation": {
+    "onCommands": [
+      "clawback"
+    ]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "checkoutDir": {
+        "type": "string",
+        "description": "Local Clawback checkout path used in printed commands."
+      },
+      "defaultTarget": {
+        "type": "string",
+        "description": "Default OpenClaw target version used in printed rehearsal commands."
+      },
+      "privateFixture": {
+        "type": "boolean",
+        "description": "Include --private-fixture by default in printed rehearsal commands."
+      }
+    }
+  },
+  "uiHints": {
+    "checkoutDir": {
+      "label": "Checkout Directory",
+      "help": "Path where Clawback is cloned. Defaults to ./clawback in generated setup commands."
+    },
+    "defaultTarget": {
+      "label": "Default Target Version",
+      "help": "OpenClaw version used when no --target is supplied."
+    },
+    "privateFixture": {
+      "label": "Private Fixture By Default",
+      "help": "Include workspace files and plugin runtime deps in generated rehearsal commands.",
+      "advanced": true
+    }
+  }
+}

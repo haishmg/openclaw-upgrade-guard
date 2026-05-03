@@ -1,0 +1,22 @@
+{
+  "name": "clawback-openclaw-plugin",
+  "version": "0.1.0",
+  "description": "Safe OpenClaw plugin helper for Clawback upgrade rehearsal commands.",
+  "type": "module",
+  "license": "MIT",
+  "openclaw": {
+    "extensions": [
+      "./index.js"
+    ],
+    "install": {
+      "minHostVersion": ">=2026.4.20"
+    },
+    "compat": {
+      "pluginApi": ">=2026.4.20"
+    },
+    "release": {
+      "publishToClawHub": true,
+      "publishToNpm": false
+    }
+  }
+}

@@ -90,6 +90,27 @@ npm run suite:post
 
 The updater refuses to change the host unless the report matches the requested target and has zero hard errors. Reports marked with `container.fidelity.host_replica` require `--accept-low-fidelity` because a sanitized container is not a full live-host replica.
 
+## OpenClaw Plugin
+
+The repo includes a safe Clawhub helper plugin in `packages/clawback-openclaw-plugin`. It is intentionally a command guide, not an in-process runner, because OpenClaw blocks plugins that execute shell commands by default and Clawback needs shell/container access to do real upgrade rehearsals.
+
+From a checkout:
+
+```sh
+openclaw plugins install packages/clawback-openclaw-plugin --link
+openclaw plugins enable clawback
+openclaw clawback commands --target 2026.4.29 --private-fixture
+```
+
+Once published through Clawhub, the install path should be:
+
+```sh
+openclaw plugins install clawhub:clawback
+openclaw plugins enable clawback
+```
+
+The plugin prints the exact Clawback commands to run from a checkout. It does not apply upgrades or run container jobs inside the OpenClaw plugin host.
+
 ## Direct Commands
 
 Run only the local guard:
