@@ -99,6 +99,16 @@ npm run container:export -- ~/.openclaw fixtures/openclaw-sanitized
 OPENCLAW_PACKAGE=openclaw@latest npm run container:rehearse -- fixtures/openclaw-sanitized
 ```
 
+For private high-fidelity rehearsals, opt into bulky local state explicitly:
+
+```sh
+npm run suite:pre -- --target 2026.4.29 --private-fixture
+```
+
+The target package installed in the container includes its own bundled plugins. `--private-fixture` is only for testing how the target behaves with this host's workspace files and existing generated `~/.openclaw/plugin-runtime-deps` cache.
+
+The rehearsal container and built rehearsal image are removed after verification by default. Add `--keep-image` only when you need to inspect the image after a run.
+
 Compare a target against a same-harness container baseline:
 
 ```sh

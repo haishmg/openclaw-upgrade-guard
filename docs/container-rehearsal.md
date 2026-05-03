@@ -65,6 +65,18 @@ By default, workspace files under `~/.openclaw/workspace` are not copied. To inc
 node scripts/export-fixture.js ~/.openclaw fixtures/openclaw-sanitized --include-workspaces
 ```
 
+By default, generated plugin runtime deps under `~/.openclaw/plugin-runtime-deps` are also not copied. The target OpenClaw package installed in the image brings its own bundled plugins, so the default smoke test checks whether the target can start cleanly with your redacted plugin registry metadata. To rehearse against the host's existing generated plugin runtime cache, add `--include-plugin-runtime-deps`:
+
+```sh
+node scripts/export-fixture.js ~/.openclaw fixtures/openclaw-private --include-plugin-runtime-deps
+```
+
+For the full pre-upgrade suite, use the consolidated private fixture option:
+
+```sh
+npm run suite:pre -- --target 2026.4.29 --private-fixture
+```
+
 The default fixture deliberately skips sensitive or bulky runtime state. That is good for open-source sharing, but it also means the default container is low-fidelity. For private troubleshooting, you can improve fidelity by deliberately mounting or copying more state, but review secrets before sharing any resulting fixture or report.
 
 ## Plain Rehearsal
@@ -124,7 +136,9 @@ OPENCLAW_PACKAGE=openclaw@beta npm run container:rehearse -- fixtures/openclaw-s
 
 ## Podman and Docker Disk Usage
 
-Container rehearsal builds a Node-based image and installs OpenClaw plus its dependencies. On small Linux hosts, expect Podman/Docker storage to use multiple GB after a few rebuilds, especially when testing several OpenClaw versions.
+Container rehearsal builds a Node-based image and installs OpenClaw plus its dependencies. The rehearsal container is run with `--rm`, and the built rehearsal image is removed after verification by default. Add `--keep-image` only when you need to inspect or reuse the image for debugging.
+
+Even with automatic cleanup, Podman/Docker may retain shared base layers or build cache. On small Linux hosts, check storage periodically when testing several OpenClaw versions.
 
 Check host disk space:
 
@@ -172,7 +186,7 @@ Cannot fully prove:
 - Real Telegram/WhatsApp auth still works, because auth stores are intentionally not copied by default.
 - Host systemd service installation behavior, because the container does not run your user systemd.
 - External workspace directories, unless you mount or copy them deliberately.
-- Durable task history, locks, logs, media, memory, and runtime caches, because the default fixture omits them.
+- Durable task history, locks, logs, media, memory, and runtime caches, because the default fixture omits them. Plugin runtime deps are included only when you explicitly export them for private rehearsal.
 - Hardware, Tailscale, DNS, or local network behavior.
 
 The report includes `container.fidelity.host_replica` as a warning to make this explicit. A passing sanitized container rehearsal means "the target can load this redacted fixture and pass compatibility probes." It does not mean "the target is proven safe on the live host."

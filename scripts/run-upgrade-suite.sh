@@ -11,11 +11,14 @@ after_dir="${OPENCLAW_AFTER_DIR:-reports/after-upgrade}"
 baseline_file="${OPENCLAW_BASELINE_FILE:-$before_dir/report.json}"
 target_package="${OPENCLAW_PACKAGE:-openclaw@latest}"
 lock_dir="${OPENCLAW_SUITE_LOCK_DIR:-reports/.suite-pre.lock}"
+include_workspaces="${OPENCLAW_INCLUDE_WORKSPACES:-0}"
+include_plugin_runtime_deps="${OPENCLAW_INCLUDE_PLUGIN_RUNTIME_DEPS:-0}"
+keep_container_image="${OPENCLAW_KEEP_CONTAINER_IMAGE:-0}"
 
 usage() {
   cat <<'USAGE'
 Usage:
-  scripts/run-upgrade-suite.sh pre [--target <version|tag|package>]
+  scripts/run-upgrade-suite.sh pre [--target <version|tag|package>] [options]
   scripts/run-upgrade-suite.sh post
 
 Modes:
@@ -26,6 +29,11 @@ Options:
   --target <value>       OpenClaw version, dist-tag, or package for pre mode.
                          Examples: 2026.4.26, beta, openclaw@2026.4.26.
   --package <value>      Exact npm package spec for pre mode.
+  --private-fixture      Include workspace files and plugin runtime deps in the fixture.
+  --include-workspaces   Include ~/.openclaw/workspace in the fixture.
+  --include-plugin-runtime-deps
+                         Include ~/.openclaw/plugin-runtime-deps in the fixture.
+  --keep-image           Keep the built rehearsal image instead of deleting it after verification.
 
 Environment:
   OPENCLAW_PACKAGE       Package/version for container rehearsal (default: openclaw@latest).
@@ -65,6 +73,23 @@ while [ "$#" -gt 0 ]; do
       target_package="$2"
       shift 2
       ;;
+    --private-fixture)
+      include_workspaces=1
+      include_plugin_runtime_deps=1
+      shift
+      ;;
+    --include-workspaces)
+      include_workspaces=1
+      shift
+      ;;
+    --include-plugin-runtime-deps)
+      include_plugin_runtime_deps=1
+      shift
+      ;;
+    --keep-image)
+      keep_container_image=1
+      shift
+      ;;
     -h|--help|help)
       usage
       exit 0
@@ -91,8 +116,16 @@ case "$mode" in
     fi
     trap 'rm -rf "$lock_dir"' EXIT INT TERM
 
+    export_args=("$HOME/.openclaw" "$fixture")
+    if [ "$include_workspaces" = "1" ]; then
+      export_args+=(--include-workspaces)
+    fi
+    if [ "$include_plugin_runtime_deps" = "1" ]; then
+      export_args+=(--include-plugin-runtime-deps)
+    fi
+
     echo "[suite] Exporting sanitized OpenClaw fixture from ~/.openclaw to $fixture"
-    npm run container:export -- ~/.openclaw "$fixture"
+    npm run container:export -- "${export_args[@]}"
 
     mkdir -p "$before_dir" reports/container-rehearsal
     target_name="$(safe_name "$target_package")"
@@ -114,6 +147,7 @@ case "$mode" in
     echo "[suite] Container output: $container_log"
     OPENCLAW_PACKAGE="$target_package" \
     OPENCLAW_GUARD_IMAGE="$container_image" \
+    OPENCLAW_KEEP_CONTAINER_IMAGE="$keep_container_image" \
       npm run container:rehearse -- "$fixture" \
       > "$container_log" 2>&1 &
     container_pid="$!"

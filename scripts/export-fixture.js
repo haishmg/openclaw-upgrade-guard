@@ -6,6 +6,7 @@ import { redact } from "../lib/redact.js";
 const source = process.argv[2] || path.join(process.env.HOME || "", ".openclaw");
 const destination = process.argv[3] || path.join(process.cwd(), "fixtures", "openclaw-sanitized");
 const includeWorkspaces = process.argv.includes("--include-workspaces");
+const includePluginRuntimeDeps = process.argv.includes("--include-plugin-runtime-deps");
 
 const includeFiles = [
   "openclaw.json",
@@ -21,6 +22,7 @@ const includeDirs = [
 ];
 
 if (includeWorkspaces) includeDirs.push("workspace");
+if (includePluginRuntimeDeps) includeDirs.push("plugin-runtime-deps");
 
 if (!fs.existsSync(source)) {
   throw new Error(`OpenClaw state directory does not exist: ${source}`);
@@ -33,6 +35,8 @@ for (const file of includeFiles) copyJsonOrText(path.join(source, file), path.jo
 for (const dir of includeDirs) copyTree(path.join(source, dir), path.join(destination, dir));
 
 console.log(`Sanitized fixture written to ${destination}`);
+if (includeWorkspaces) console.log("Included workspace files for private rehearsal.");
+if (includePluginRuntimeDeps) console.log("Included plugin runtime deps for private rehearsal.");
 console.log("Review it before publishing or mounting it into a container.");
 
 function copyTree(from, to) {
@@ -80,6 +84,7 @@ function shouldSkip(name) {
     "devices",
     "locks",
     "node_modules",
+    ".openclaw-npm-cache",
     ".git",
     "exec-approvals.json",
   ].includes(name) ||

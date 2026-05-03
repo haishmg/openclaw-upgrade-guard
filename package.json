@@ -16,7 +16,7 @@
     "report:html": "node scripts/render-report-html.js",
     "suite:pre": "bash scripts/run-upgrade-suite.sh pre",
     "suite:post": "bash scripts/run-upgrade-suite.sh post",
-    "test": "node --test",
+    "test": "node --test test/*.test.js",
     "upgrade:apply": "node scripts/guarded-update.js apply",
     "upgrade:rollback": "node scripts/guarded-update.js rollback"
   },

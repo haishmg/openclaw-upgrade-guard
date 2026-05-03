@@ -13,10 +13,33 @@ if [ -z "$runtime" ]; then
   fi
 fi
 
-fixture="${1:-fixtures/openclaw-sanitized}"
+fixture="fixtures/openclaw-sanitized"
 package="${OPENCLAW_PACKAGE:-openclaw@latest}"
 image="${OPENCLAW_GUARD_IMAGE:-clawback:local}"
 lock_dir="${OPENCLAW_CONTAINER_LOCK_DIR:-reports/.container-rehearsal.lock}"
+keep_image="${OPENCLAW_KEEP_CONTAINER_IMAGE:-0}"
+image_built=0
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --keep-image)
+      keep_image=1
+      shift
+      ;;
+    -h|--help|help)
+      echo "Usage: scripts/run-container-rehearsal.sh [fixture] [--keep-image]"
+      exit 0
+      ;;
+    -*)
+      echo "[container] Unknown option: $1" >&2
+      exit 2
+      ;;
+    *)
+      fixture="$1"
+      shift
+      ;;
+  esac
+done
 
 if [ ! -d "$fixture" ]; then
   echo "[container] Fixture directory not found: $fixture" >&2
@@ -30,16 +53,30 @@ if ! mkdir "$lock_dir" 2>/dev/null; then
   echo "[container] Wait for it to finish before starting another target rehearsal." >&2
   exit 1
 fi
-trap 'rm -rf "$lock_dir"' EXIT INT TERM
+
+cleanup() {
+  local exit_status="$?"
+  rm -rf "$lock_dir"
+  if [ "$image_built" = "1" ] && [ "$keep_image" != "1" ]; then
+    echo "[container] Removing rehearsal image: $image"
+    "$runtime" image rm -f "$image" >/dev/null 2>&1 || true
+  elif [ "$image_built" = "1" ]; then
+    echo "[container] Keeping rehearsal image: $image"
+  fi
+  exit "$exit_status"
+}
+trap cleanup EXIT INT TERM
 
 echo "[container] Runtime: $runtime"
 echo "[container] Fixture: $fixture"
 echo "[container] Target OpenClaw package: $package"
 echo "[container] Building image: $image"
 "$runtime" build \
+  --rm=true \
   --build-arg "OPENCLAW_PACKAGE=$package" \
   -t "$image" \
   -f docker/Dockerfile .
+image_built=1
 
 mkdir -p reports/container-rehearsal
 
