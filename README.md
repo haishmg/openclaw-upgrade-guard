@@ -4,6 +4,24 @@ Clawback is an upgrade safety tool for OpenClaw installs. It captures a local ba
 
 It is Linux/POSIX-first today. The CLI may work elsewhere, but the helper scripts assume `bash`, and container rehearsal expects Docker or Podman.
 
+## Quick Look
+
+These short playable demos show the command flow, terminal result, and generated HTML report.
+
+**Passing rehearsal: OpenClaw `2026.4.23`**
+
+<video src="docs/media/clawback-2026.4.23-pass-demo.mp4" controls preload="metadata" width="520"></video>
+
+[Open the passing rehearsal video](docs/media/clawback-2026.4.23-pass-demo.mp4). This shows a target image passing the container gate with warnings to review.
+
+**Blocked rehearsal: OpenClaw `2026.4.29`**
+
+<video src="docs/media/clawback-2026.4.29-failure-demo.mp4" controls preload="metadata" width="520"></video>
+
+[Open the blocked rehearsal video](docs/media/clawback-2026.4.29-failure-demo.mp4). This shows Clawback refusing to proceed after gateway/config validation errors.
+
+Both demos use sanitized container reports. A container pass is still only the pre-upgrade gate; run the post-upgrade host validation before trusting a changed live install.
+
 ## Why This Exists
 
 Clawback started after a real OpenClaw upgrade path hurt more than it should have. A working install moved from `2026.4.26` toward `2026.4.29`, hit upgrade issues, then even `2026.4.26` stopped being a good recovery point. The setup eventually had to be manually rolled back to `2026.4.23`, where OpenClaw was performant and stable again.
@@ -43,24 +61,6 @@ This exports a sanitized fixture, captures a local baseline, runs a same-harness
 The checks overlap on purpose. The local baseline records what is already true on the live host before upgrading. The container baseline records what the current OpenClaw package can do in the same isolated harness. The target container is then compared against that same-harness baseline, so a target that loses gateway identity, scopes, command JSON behavior, configured channels, or other baseline behavior becomes a hard failure instead of a generic container warning.
 
 The first container runs can take several minutes because the suite builds images and installs OpenClaw inside them. On small hosts, expect the report to take around 10 minutes or more.
-
-## Demo Videos
-
-These short demos show the command flow, terminal result, and generated HTML report:
-
-**Passing rehearsal: OpenClaw `2026.4.23`**
-
-<video src="docs/media/clawback-2026.4.23-pass-demo.mp4" controls width="720"></video>
-
-[Open the passing rehearsal video](docs/media/clawback-2026.4.23-pass-demo.mp4). This shows a target image passing the container gate with warnings to review.
-
-**Blocked rehearsal: OpenClaw `2026.4.29`**
-
-<video src="docs/media/clawback-2026.4.29-failure-demo.mp4" controls width="720"></video>
-
-[Open the blocked rehearsal video](docs/media/clawback-2026.4.29-failure-demo.mp4). This shows Clawback refusing to proceed after gateway/config validation errors.
-
-Both demos use sanitized container reports. A container pass is still only the pre-upgrade gate; run the post-upgrade host validation before trusting a changed live install.
 
 Review both summaries:
 
