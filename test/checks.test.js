@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { evaluate } from "../lib/checks.js";
+import { sanitizeFixtureJson } from "../lib/fixture.js";
 import { redact } from "../lib/redact.js";
 import { parseArgs } from "../lib/cli.js";
 import { parseJsonOutput } from "../lib/runner.js";
@@ -21,6 +22,33 @@ test("redacts common secret and phone shapes", () => {
   assert.equal(output.compaction.reserveTokens, 20000);
   assert.equal(output.compaction.keepRecentTokens, 10000);
   assert.equal(output.heartbeat.isolatedSession, false);
+});
+
+test("fixture export strips path-installed plugins from OpenClaw config", () => {
+  const sanitized = sanitizeFixtureJson("openclaw.json", {
+    plugins: {
+      entries: {
+        clawback: { enabled: true },
+        openai: { enabled: true },
+      },
+      allow: ["clawback", "openai"],
+      load: {
+        paths: ["/host/repo/packages/clawback-openclaw-plugin"],
+      },
+      installs: {
+        clawback: {
+          source: "path",
+          sourcePath: "/host/repo/packages/clawback-openclaw-plugin",
+          installPath: "/host/repo/packages/clawback-openclaw-plugin",
+        },
+      },
+    },
+  });
+
+  assert.deepEqual(sanitized.plugins.entries, { openai: { enabled: true } });
+  assert.deepEqual(sanitized.plugins.allow, ["openai"]);
+  assert.equal(sanitized.plugins.load, undefined);
+  assert.equal(sanitized.plugins.installs, undefined);
 });
 
 test("status evaluator fails unreachable gateway", () => {

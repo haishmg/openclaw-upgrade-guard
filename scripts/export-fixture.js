@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { sanitizeFixtureJson } from "../lib/fixture.js";
 import { redact } from "../lib/redact.js";
 
 const source = process.argv[2] || path.join(process.env.HOME || "", ".openclaw");
@@ -58,7 +59,8 @@ function copyJsonOrText(from, to) {
   fs.mkdirSync(path.dirname(to), { recursive: true });
   if (from.endsWith(".json")) {
     try {
-      const data = JSON.parse(fs.readFileSync(from, "utf8"));
+      const relativePath = path.relative(source, from);
+      const data = sanitizeFixtureJson(relativePath, JSON.parse(fs.readFileSync(from, "utf8")));
       fs.writeFileSync(to, `${JSON.stringify(redact(data), null, 2)}\n`);
       return;
     } catch {
