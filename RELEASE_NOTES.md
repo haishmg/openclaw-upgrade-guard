@@ -1,15 +1,15 @@
-# Clawback 0.3.4
+# Clawback 0.3.5
 
 ## Highlights
 
-- Fixes stale lock recovery for pre-upgrade suites and container rehearsals.
-- Records lock owner metadata (`pid`, `started_at`, and command) when a suite or rehearsal starts.
-- Keeps active-run protection intact by blocking when the recorded process is still alive.
-- Updates README install instructions to use the `v0.3.4` release tag.
+- Fixes sanitized fixture exports when the live OpenClaw config includes path-installed plugins.
+- Removes host-only plugin load paths and install records from the exported `openclaw.json`.
+- Allows same-harness current-version container baselines to pass when the host has local development plugins installed.
+- Updates README install instructions to use the `v0.3.5` release tag.
 
 ## Validation
 
-- `npm test`
-- `npm run regression:offline`
-- stale-lock smoke test for `scripts/run-upgrade-suite.sh`
+- `npm run check`
+- `node scripts/regression-offline.js`
+- `npm run suite:pre -- --target 2026.5.4`
 - `npm pack --dry-run`

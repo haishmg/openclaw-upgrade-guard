@@ -1,6 +1,6 @@
 {
   "name": "clawback",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Container rehearsal, guarded update, and rollback safety for OpenClaw upgrades.",
   "type": "module",
   "bin": {

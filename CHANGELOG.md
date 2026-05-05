@@ -10,6 +10,12 @@ Clawback uses semantic versioning:
 
 ## Unreleased
 
+## [0.3.5] - 2026-05-05
+
+### Fixed
+
+- Strip path-installed host plugins from exported sanitized fixtures so current-version container baselines do not fail config validation on absolute host paths.
+
 ## [0.3.4] - 2026-05-05
 
 ### Fixed
