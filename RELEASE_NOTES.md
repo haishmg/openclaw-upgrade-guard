@@ -1,15 +1,15 @@
-# Clawback 0.3.3
+# Clawback 0.3.4
 
 ## Highlights
 
-- Adds a safe OpenClaw/Clawhub helper plugin under `packages/clawback-openclaw-plugin`.
-- Exposes `openclaw clawback setup`, `openclaw clawback commands`, and `openclaw clawback links`.
-- Keeps the plugin safe by printing exact Clawback commands instead of running shell/container jobs inside OpenClaw's plugin host.
-- Updates README install instructions to use the `v0.3.3` release tag.
+- Fixes stale lock recovery for pre-upgrade suites and container rehearsals.
+- Records lock owner metadata (`pid`, `started_at`, and command) when a suite or rehearsal starts.
+- Keeps active-run protection intact by blocking when the recorded process is still alive.
+- Updates README install instructions to use the `v0.3.4` release tag.
 
 ## Validation
 
 - `npm test`
 - `npm run regression:offline`
-- `openclaw plugins install packages/clawback-openclaw-plugin --link`
-- `openclaw clawback commands --target 2026.4.29 --private-fixture`
+- stale-lock smoke test for `scripts/run-upgrade-suite.sh`
+- `npm pack --dry-run`

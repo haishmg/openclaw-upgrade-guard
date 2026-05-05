@@ -15,6 +15,35 @@ include_workspaces="${OPENCLAW_INCLUDE_WORKSPACES:-0}"
 include_plugin_runtime_deps="${OPENCLAW_INCLUDE_PLUGIN_RUNTIME_DEPS:-0}"
 keep_container_image="${OPENCLAW_KEEP_CONTAINER_IMAGE:-0}"
 
+acquire_lock() {
+  local dir="$1"
+  local label="$2"
+  shift 2
+
+  while true; do
+    if mkdir "$dir" 2>/dev/null; then
+      printf '%s\n' "$$" > "$dir/pid"
+      date -u +"%Y-%m-%dT%H:%M:%SZ" > "$dir/started_at"
+      printf '%s\n' "$0 $mode $*" > "$dir/command"
+      return 0
+    fi
+
+    local pid=""
+    if [ -f "$dir/pid" ]; then
+      pid="$(cat "$dir/pid" 2>/dev/null || true)"
+    fi
+
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+      echo "[suite] Another $label appears to be running: $dir (pid $pid)" >&2
+      echo "[suite] Wait for it to finish before starting another target rehearsal." >&2
+      exit 1
+    fi
+
+    echo "[suite] Removing stale $label lock: $dir" >&2
+    rm -rf "$dir"
+  done
+}
+
 usage() {
   cat <<'USAGE'
 Usage:
@@ -110,11 +139,7 @@ done
 case "$mode" in
   pre)
     mkdir -p reports
-    if ! mkdir "$lock_dir" 2>/dev/null; then
-      echo "[suite] Another pre-upgrade suite appears to be running: $lock_dir" >&2
-      echo "[suite] Wait for it to finish before starting another target rehearsal." >&2
-      exit 1
-    fi
+    acquire_lock "$lock_dir" "pre-upgrade suite" "$@"
     trap 'rm -rf "$lock_dir"' EXIT INT TERM
 
     export_args=("$HOME/.openclaw" "$fixture")

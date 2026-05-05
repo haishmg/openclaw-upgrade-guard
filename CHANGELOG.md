@@ -10,6 +10,12 @@ Clawback uses semantic versioning:
 
 ## Unreleased
 
+## [0.3.4] - 2026-05-05
+
+### Fixed
+
+- Treat empty or dead-PID pre-upgrade suite and container rehearsal locks as stale, while still blocking when the owning process is alive.
+
 ## [0.3.3] - 2026-05-03
 
 ### Added
